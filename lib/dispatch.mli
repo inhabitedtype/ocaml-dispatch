@@ -63,7 +63,7 @@ type 'a route = (tag * string) list * typ * 'a
     event of a successful match.
 
     The second component of the tuple indicates the type of match that this
-    route support, which can be either a prefix ([`Prefix]) match, or an eact
+    route support, which can be either a prefix ([`Prefix]) match, or an exact
     ([`Exact]) match.
 
     The third and final component is the value that will be returned in the
@@ -99,7 +99,7 @@ module DSL : sig
       {- [of_dsl "/" = ([], `Exact)]}
       {- [of_dsl "/user/:id" = ([`Lit, "user"; `Var, "id"], `Exact)]}
       {- [of_dsl "/user/:id/*" = ([`Lit, "user"; `Var, "id"], `Prefix)]}
-      {- [of_dsl "/user/:id/settings" = ([`Lit, "user"; `Var, "id"; `Var "settings"], `Prefix)]}} *)
+      {- [of_dsl "/user/:id/settings" = ([`Lit, "user"; `Var, "id"; `Var "settings"], `Exact)]}} *)
 
   val dispatch     : 'a route list -> string -> ('a * assoc * string option, string) result
   val dispatch_exn : 'a route list -> string -> 'a * assoc * string option
