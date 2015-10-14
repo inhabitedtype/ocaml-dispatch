@@ -1,9 +1,9 @@
 # ocaml-dispatch
 
 ocaml-dispatch provides a basic mechanism for dispatching a request to a
-handler based on heirarhical path names conventionally found in URIs. It can be
+handler based on hierarchical path names conventionally found in URIs. It can be
 used both for dispatching requests in a server, as well as handing changes to
-heirarchical fragments in a client-side application.
+hierarchical fragments in a client-side application.
 
 [![Build Status](https://travis-ci.org/inhabitedtype/ocaml-dispatch.svg?branch=master)](https://travis-ci.org/inhabitedtype/ocaml-dispatch)
 
