@@ -19,6 +19,20 @@ Library dispatch
   Modules:          Dispatch
   BuildDepends:     result
 
+Flag js_of_ocaml
+  Description: build the Javascript dispatch library
+  Default$: false
+
+Library js
+  Path:             js
+  Findlibname:      js
+  Findlibparent:    dispatch
+  Build$:           flag(js_of_ocaml)
+  Install$:         flag(js_of_ocaml)
+  BuildDepends:     dispatch, js_of_ocaml, js_of_ocaml.syntax, result
+  XMETARequires:    dispatch, js_of_ocaml, js_of_ocaml.syntax, result
+  Modules:          Dispatch_js
+
 Executable test_dispatch
   Path:             lib_test
   MainIs:           test_dispatch.ml
