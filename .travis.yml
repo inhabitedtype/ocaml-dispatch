@@ -5,3 +5,4 @@ sudo: required
 env:
   - OCAML_VERSION=4.02 PACKAGE=dispatch
   - OCAML_VERSION=4.01 PACKAGE=dispatch
+  - OCAML_VERSION=4.00 PACKAGE=dispatch
