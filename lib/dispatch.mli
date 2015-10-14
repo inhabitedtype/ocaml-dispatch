@@ -63,8 +63,8 @@ type 'a route = (tag * string) list * typ * 'a
     event of a successful match.
 
     The second component of the tuple indicates the type of match that this
-    route support, which can be either a prefix ([`Prefix]) match, or an exact
-    ([`Exact]) match.
+    route support, which can be either a prefix match (indicated by the
+    [`Prefix] variant), or an exact match (indicated by the [`Exact] variant).
 
     The third and final component is the value that will be returned in the
     event that the route matches the path. *)
@@ -78,6 +78,12 @@ val dispatch_exn : 'a route list -> string -> 'a * assoc * string option
 
     [dispatch_exn routes path] behaves just like [dispatch routes path] except
     will raise an exception using [failwith] in the case of no matches. *)
+
+val dispatch_apply     : (assoc -> string option -> 'a) route list -> string -> ('a, string) result
+val dispatch_apply_exn : (assoc -> string option -> 'a) route list -> string -> 'a
+(** [dispatch_apply] and [dispatch_apply_exn] behave like their non-[apply]
+    counterparts except value returned by a route is a function that is applied
+    to the path component mapping and trailing path components. *)
 
 val to_dsl : (tag * string) list * typ -> string
 val of_dsl : string -> (tag * string) list * typ
@@ -103,4 +109,7 @@ module DSL : sig
 
   val dispatch     : 'a route list -> string -> ('a * assoc * string option, string) result
   val dispatch_exn : 'a route list -> string -> 'a * assoc * string option
+
+  val dispatch_apply     : (assoc -> string option -> 'a) route list -> string -> ('a, string) result
+  val dispatch_apply_exn : (assoc -> string option -> 'a) route list -> string -> 'a
 end
