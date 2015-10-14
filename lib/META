@@ -1,0 +1,13 @@
+# OASIS_START
+# DO NOT EDIT (digest: a864e4fcc5dc2fd179ba9b68392f7cb0)
+version = "0.1.0"
+description =
+"Path-based dispatching for client- and server-side applications."
+requires = "result"
+archive(byte) = "dispatch.cma"
+archive(byte, plugin) = "dispatch.cma"
+archive(native) = "dispatch.cmxa"
+archive(native, plugin) = "dispatch.cmxs"
+exists_if = "dispatch.cma"
+# OASIS_STOP
+
