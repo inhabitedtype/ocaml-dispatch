@@ -125,6 +125,15 @@ let dispatch_exn routes path =
   | Ok(x, assoc, ps) -> (x, assoc, ps)
   | Error msg        -> failwith msg
 
+let dispatch_apply routes path =
+  match dispatch routes path with
+  | Ok(f, assoc, ps) -> Ok(f assoc ps)
+  | Error msg        -> Error msg
+
+let dispatch_apply_exn routes path =
+  let f, assoc, ps = dispatch_exn routes path in
+  f assoc ps
+
 module DSL = struct
   type 'a route = string * 'a
 
@@ -139,4 +148,10 @@ module DSL = struct
 
   let dispatch_exn routes =
     dispatch_exn (convert routes)
+
+  let dispatch_apply routes =
+    dispatch_apply (convert routes)
+
+  let dispatch_apply_exn routes =
+    dispatch_apply_exn (convert routes)
 end
