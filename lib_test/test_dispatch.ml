@@ -32,11 +32,13 @@
   ----------------------------------------------------------------------------*)
 
 let base_path c _ _ = c
+let params vs _ = vs
 let param_path k ps _ = List.assoc k ps
 let disp_path _ r =
   match r with
   | None   -> ""
   | Some r -> r
+
 
 open OUnit
 open Dispatch.DSL
@@ -125,6 +127,18 @@ let keys () =
     end;
 ;;
 
+let var_order () =
+  let table =
+    [ ("/test/:z/:x/:y/", params)
+    ; ("/test/:x/:y/order/:z/", params) ]
+  in
+  "return path parameters in the order they appear"
+    @? begin match dispatch table "/test/foo/bar/order/baz" with
+      | Ok ["x", "foo"; "y", "bar"; "z", "baz" ] -> true
+      | _                                        -> false
+    end
+;;
+
 let wildcard () =
   let table = ["/foo/*", disp_path] in
   "a trailing wildcard pattern matches just the prefix"
@@ -156,9 +170,10 @@ let _ =
     "single" >:: single;
     "overlap" >:: overlap;
     "keys" >:: keys;
-    "wildcard" >:: wildcard
+    "var order" >:: var_order;
+    "wildcard" >:: wildcard;
   ] in
-  let suite = (Printf.sprintf "test logic") >::: tests in
+  let suite = (Printf.sprintf "test dispatch") >::: tests in
   let verbose = ref false in
   let set_verbose _ = verbose := true in
   Arg.parse
