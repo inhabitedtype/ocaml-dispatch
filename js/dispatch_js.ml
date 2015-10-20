@@ -2,7 +2,7 @@ open Lwt
 open Result
 
 let dispatch_on_fragment ?on_failure ?(default="/") routes = 
-  let dispatch = Dispatch.dispatch_apply routes in
+  let dispatch = Dispatch.dispatch routes in
   let on_failure =
     match on_failure with
     | None   -> (fun msg -> print_endline msg; return_unit)

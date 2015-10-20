@@ -69,21 +69,16 @@ type 'a route = (tag * string) list * typ * 'a
     The third and final component is the value that will be returned in the
     event that the route matches the path. *)
 
-val dispatch     : 'a route list -> string -> ('a * assoc * string option, string) result
-val dispatch_exn : 'a route list -> string -> 'a * assoc * string option
+val dispatch     : (assoc -> string option -> 'a) route list -> string -> ('a, string) result
+val dispatch_exn : (assoc -> string option -> 'a) route list -> string -> 'a
 (** [dispatch routes path] iterates through [routes] and selects the first one
-    that matches [path], returning with the route value any component mappings
-    and trailing path components (in the case of a prefix match). If none of the
-    [routes] matches [path], it will return an [Error] result.
+    that matches [path]. It then applies the route handler to any component
+    mappings and trailing path components (in the case of a prefix match) and
+    returns the result. If none of the [routes] matches [path], it will return
+    an [Error] result.
 
     [dispatch_exn routes path] behaves just like [dispatch routes path] except
     will raise an exception using [failwith] in the case of no matches. *)
-
-val dispatch_apply     : (assoc -> string option -> 'a) route list -> string -> ('a, string) result
-val dispatch_apply_exn : (assoc -> string option -> 'a) route list -> string -> 'a
-(** [dispatch_apply] and [dispatch_apply_exn] behave like their non-[apply]
-    counterparts except value returned by a route is a function that is applied
-    to the path component mapping and trailing path components. *)
 
 val to_dsl : (tag * string) list * typ -> string
 val of_dsl : string -> (tag * string) list * typ
@@ -107,9 +102,6 @@ module DSL : sig
       {- [of_dsl "/user/:id/*" = ([`Lit, "user"; `Var, "id"], `Prefix)]}
       {- [of_dsl "/user/:id/settings" = ([`Lit, "user"; `Var, "id"; `Var "settings"], `Exact)]}} *)
 
-  val dispatch     : 'a route list -> string -> ('a * assoc * string option, string) result
-  val dispatch_exn : 'a route list -> string -> 'a * assoc * string option
-
-  val dispatch_apply     : (assoc -> string option -> 'a) route list -> string -> ('a, string) result
-  val dispatch_apply_exn : (assoc -> string option -> 'a) route list -> string -> 'a
+  val dispatch     : (assoc -> string option -> 'a) route list -> string -> ('a, string) result
+  val dispatch_exn : (assoc -> string option -> 'a) route list -> string -> 'a
 end

@@ -50,7 +50,7 @@ let empty () =
     end
 
 let single () =
-  let table = ["/", ()] in
+  let table = ["/", (fun ps p -> ((), ps, p))] in
   "a single entry for the root will dispatch the root to it"
     @? begin match dispatch table "/" with
        | Ok((), [], None) -> true
@@ -74,17 +74,17 @@ let overlap () =
   in
   let open Dispatch.DSL in
   "a leading prefix pattern gets matched"
-    @? begin match dispatch_apply table "/foo" with
+    @? begin match dispatch table "/foo" with
        | Ok "/foo" -> true
        | _         -> false
     end;
   "a trailing prefix pattern gets matched"
-    @? begin match dispatch_apply table "/bar" with
+    @? begin match dispatch table "/bar" with
        | Ok "/bar" -> true
        | _         -> false
     end;
   "a complete pattern does not get shadowed by prefix"
-    @? begin match dispatch_apply table "/foo/baz" with
+    @? begin match dispatch table "/foo/baz" with
        | Ok "/foo/baz" -> true
        | _             -> false
     end;
@@ -98,17 +98,17 @@ let keys () =
     ]
   in
   "a leading prefix pattern gets matched and keys properly assigned"
-    @? begin match dispatch_apply table "/foo/1" with
+    @? begin match dispatch table "/foo/1" with
        | Ok "1" -> true
        | _      -> false
     end;
   "a pattern with keys does not get shadowed by prefix"
-    @? begin match dispatch_apply table "/foo/1/test" with
+    @? begin match dispatch table "/foo/1/test" with
        | Ok "test" -> true
        | _         -> false
     end;
   "a pattern with interleaved keys and literals works"
-    @? begin match dispatch_apply table "/foo/1/bar/one" with
+    @? begin match dispatch table "/foo/1/bar/one" with
        | Ok "one" -> true
        | _        -> false
     end;
@@ -117,12 +117,12 @@ let keys () =
 let wildcard () =
   let table = ["/foo/*", disp_path] in
   "a trailing wildcard pattern matches just the prefix"
-    @? begin match dispatch_apply table "/foo" with
+    @? begin match dispatch table "/foo" with
        | Ok "" -> true
        | _     -> false
     end;
   "a trailing wildcard pattern matches a longer path"
-    @? begin match dispatch_apply table "/foo/bar/baz" with
+    @? begin match dispatch table "/foo/bar/baz" with
        | Ok "bar/baz" -> true
        | _            -> false
     end;
