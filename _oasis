@@ -1,6 +1,6 @@
 OASISFormat: 0.4
 Name:        dispatch
-Version:     0.1.0
+Version:     0.2.0
 Synopsis:    Path-based dispatching for client- and server-side applications.
 Description: Dispatch provides a basic mechanism for dispatching a request to a
   handler based on hierarchical path names conventionally found in URIs. It can be

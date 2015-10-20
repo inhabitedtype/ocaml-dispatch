@@ -1,6 +1,6 @@
 # OASIS_START
-# DO NOT EDIT (digest: 6bdb53fb27ff932dcf9713488fcfd737)
-version = "0.1.0"
+# DO NOT EDIT (digest: 813f9498c63ba126a46516fb880281b9)
+version = "0.2.0"
 description =
 "Path-based dispatching for client- and server-side applications."
 requires = "result"
@@ -10,7 +10,7 @@ archive(native) = "dispatch.cmxa"
 archive(native, plugin) = "dispatch.cmxs"
 exists_if = "dispatch.cma"
 package "js" (
- version = "0.1.0"
+ version = "0.2.0"
  description =
  "Path-based dispatching for client- and server-side applications."
  requires = "dispatch js_of_ocaml js_of_ocaml.syntax result"
