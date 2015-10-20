@@ -113,10 +113,10 @@ let dispatch routes path =
   let ps0 = path_split path in
   let rec loop = function
     | []          -> Error "no matching routes found"
-    | (ms, t, x)::xs ->
-      begin match t, path_match ps0 ms with
-      | #typ   , `Exact assoc        -> Ok(x, assoc, None)
-      | `Prefix, `Partial(assoc, ps) -> Ok(x, assoc, Some (String.concat "/" ps))
+    | (ms, exact, f)::xs ->
+      begin match exact, path_match ps0 ms with
+      | #typ   , `Exact assoc        -> Ok(f assoc None)
+      | `Prefix, `Partial(assoc, ps) -> Ok(f assoc (Some (String.concat "/" ps)))
       | `Exact , `Partial _          -> loop xs
       | _      , `Failure _          -> loop xs
       end
@@ -125,17 +125,8 @@ let dispatch routes path =
 
 let dispatch_exn routes path =
   match dispatch routes path with
-  | Ok(x, assoc, ps) -> (x, assoc, ps)
-  | Error msg        -> failwith msg
-
-let dispatch_apply routes path =
-  match dispatch routes path with
-  | Ok(f, assoc, ps) -> Ok(f assoc ps)
-  | Error msg        -> Error msg
-
-let dispatch_apply_exn routes path =
-  let f, assoc, ps = dispatch_exn routes path in
-  f assoc ps
+  | Ok x      -> x
+  | Error msg -> failwith msg
 
 module DSL = struct
   type 'a route = string * 'a
@@ -151,10 +142,4 @@ module DSL = struct
 
   let dispatch_exn routes =
     dispatch_exn (convert routes)
-
-  let dispatch_apply routes =
-    dispatch_apply (convert routes)
-
-  let dispatch_apply_exn routes =
-    dispatch_apply_exn (convert routes)
 end
