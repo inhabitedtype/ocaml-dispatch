@@ -97,8 +97,8 @@ let of_dsl str =
 let path_match ps0 ms0 =
   let rec loop ps ms acc =
     match ps, ms with
-    | []    , []  -> `Exact acc
-    | _     , []  -> `Partial (acc, ps)
+    | []    , []  -> `Exact (List.rev acc)
+    | _     , []  -> `Partial (List.rev acc, ps)
     | []    , _   -> `Failure (Printf.sprintf
       "unmatched pattern suffix: %s" (to_dsl (ms, `Exact)))
     | p::ps', (`Lit, l)::ms' ->
