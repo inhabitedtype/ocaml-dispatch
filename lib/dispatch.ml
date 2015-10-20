@@ -59,9 +59,12 @@ let path_split path =
       in
       List.rev result
   in
-  if String.get path 0 = '/'
-    then loop 1 []
-    else loop 0 []
+  match path with
+    "" -> []
+  | _ ->
+      if String.get path 0 = '/'
+      then loop 1 []
+      else loop 0 []
 
 let to_dsl (ms, typ) =
   let start =
