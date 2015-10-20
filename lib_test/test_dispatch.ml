@@ -47,7 +47,18 @@ let empty () =
     @? begin match dispatch [] "/" with
        | Error _ -> true
        | _       -> false
-    end
+    end;
+  "an empty path string will get mapped to root"
+    @? begin match dispatch ["/", fun _ _ -> ()] "" with
+       | Ok () -> true
+       | _     -> false
+    end;
+  "an empty route path will match root"
+    @? begin match dispatch ["", fun _ _ -> ()] "/" with
+       | Ok () -> true
+       | _     -> false
+    end;
+;;
 
 let single () =
   let table = ["/", (fun ps p -> ((), ps, p))] in

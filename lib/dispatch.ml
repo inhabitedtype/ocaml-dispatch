@@ -60,9 +60,9 @@ let path_split path =
       List.rev result
   in
   match path with
-    "" -> []
+  | "" -> []
   | _ ->
-      if String.get path 0 = '/'
+    if String.get path 0 = '/'
       then loop 1 []
       else loop 0 []
 
