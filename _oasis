@@ -29,8 +29,8 @@ Library js
   Findlibparent:    dispatch
   Build$:           flag(js_of_ocaml)
   Install$:         flag(js_of_ocaml)
-  BuildDepends:     dispatch, js_of_ocaml, js_of_ocaml.syntax, result
-  XMETARequires:    dispatch, js_of_ocaml, js_of_ocaml.syntax, result
+  BuildDepends:     dispatch, js_of_ocaml, js_of_ocaml.ppx, result
+  XMETARequires:    dispatch, js_of_ocaml, js_of_ocaml.ppx, result
   Modules:          Dispatch_js
 
 Executable test_dispatch
