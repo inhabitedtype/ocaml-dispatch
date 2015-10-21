@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 813f9498c63ba126a46516fb880281b9)
+# DO NOT EDIT (digest: e0f6336b15ed30970145d00c15096a64)
 version = "0.2.0"
 description =
 "Path-based dispatching for client- and server-side applications."
@@ -13,7 +13,7 @@ package "js" (
  version = "0.2.0"
  description =
  "Path-based dispatching for client- and server-side applications."
- requires = "dispatch js_of_ocaml js_of_ocaml.syntax result"
+ requires = "dispatch js_of_ocaml js_of_ocaml.ppx result"
  archive(byte) = "js.cma"
  archive(byte, plugin) = "js.cma"
  archive(native) = "js.cmxa"

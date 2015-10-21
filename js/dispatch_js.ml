@@ -16,7 +16,7 @@ let dispatch_on_fragment ?on_failure ?(default="/") routes =
   let frag_loop =
     Lwt_js_events.onhashchanges (fun e _ ->
     let frag =
-      let new_url = Js.to_string (e##newURL) in
+      let new_url = Js.to_string (e##.newURL) in
       match Url.url_of_string new_url with
       | Some (Url.Http u | Url.Https u) -> u.Url.hu_fragment
       | Some (Url.File u)               -> u.Url.fu_fragment
