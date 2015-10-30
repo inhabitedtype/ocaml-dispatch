@@ -42,6 +42,36 @@ opam install oUnit
 make && make test
 ```
 
+## Usage
+
+Dispatch is designed to work with whatever sort of handler you care to use,
+whether it's synchronous, Lwt-based, or Async-based. Here's a simple example of
+using the `Dispatch.DSL` module to setup routing for a "Hello, World!" server.
+The example assumes a `Server` module and `request` type, and that handlers
+should return strings that will be interpreted as the body of the response.
+
+```ocaml
+open Dispatch
+
+let hello_handler keys rest request =
+  let who = try List.assoc "who" keys with Not_found -> "World" in
+  Printf.sprintf "Hello, %s!" who
+;;
+
+let handler request =
+  let table = [
+      "/"           , hello_handler
+    ; "/hello/:who/", hello_handler
+  ] in
+  match DSL.dispatch table request.path with
+  | Result.Ok handler -> handler request
+  | Result.Error _    -> "Not found!"
+;;
+
+let _ =
+  Server.start handler
+```
+
 ## License
 
 BSD3, see LICENSE file for its text.
