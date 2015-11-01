@@ -31,6 +31,11 @@
     POSSIBILITY OF SUCH DAMAGE.
   ----------------------------------------------------------------------------*)
 
+(** Path-based dispatching for js_of_ocaml applications.
+
+    Dispatch_js makes it easy for js_of_ocaml applications to monitor and react
+    to changes in URI fragments. *)
+
 open Dispatch
 
 val dispatch_on_fragment :
