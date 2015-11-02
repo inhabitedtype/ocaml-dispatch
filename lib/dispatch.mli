@@ -96,11 +96,14 @@ module DSL : sig
   (** The type of a route using the DSL to specify the path pattern. For
       example, here are some DSL strings and their translation:
 
-      {ul
-      {- [of_dsl "/" = ([], `Exact)]}
-      {- [of_dsl "/user/:id" = ([`Lit, "user"; `Var, "id"], `Exact)]}
-      {- [of_dsl "/user/:id/*" = ([`Lit, "user"; `Var, "id"], `Prefix)]}
-      {- [of_dsl "/user/:id/settings" = ([`Lit, "user"; `Var, "id"; `Var "settings"], `Exact)]}} *)
+  {v   # of_dsl "/";;
+    = ([], `Exact)
+  # of_dsl "/user/:id";;
+    = ([`Lit, "user"; `Var, "id"], `Exact)
+  # of_dsl "/user/:id/*";;
+    = ([`Lit, "user"; `Var, "id"], `Prefix)
+  # of_dsk "/user/:id/settings";;
+    = ([`Lit, "user"; `Var, "id"; `Lit, "settings"], `Exact) v} *)
 
   val dispatch     : (assoc -> string option -> 'a) route list -> string -> ('a, string) result
   val dispatch_exn : (assoc -> string option -> 'a) route list -> string -> 'a
