@@ -33,24 +33,13 @@ Library js
   XMETARequires:    dispatch, js_of_ocaml, js_of_ocaml.ppx, result
   Modules:          Dispatch_js
 
-Document dispatch
-  Title:                Dispatch docs
+Document api
+  Title:                Documentation and API reference
   Type:                 ocamlbuild (0.4)
   BuildTools+:          ocamldoc
   Install:              true
-  XOCamlbuildPath:      lib
-  XOCamlbuildLibraries: dispatch
-
-Document dispatch_js
-  Title:                Dispatch.js docs
-  Type:                 ocamlbuild (0.4)
-  BuildTools+:          ocamldoc
-  Build$:               flag(js_of_ocaml)
-  Install:              true
-  XOCamlbuildPath:      js
-  XOCamlbuildLibraries: dispatch.js
-
-
+  XOCamlbuildPath:      doc
+  XOCamlbuildModules:   lib/Dispatch, js/Dispatch_js
 
 Executable test_dispatch
   Path:             lib_test
