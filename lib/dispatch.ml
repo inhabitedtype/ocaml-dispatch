@@ -40,7 +40,7 @@ type typ =
   [ `Prefix | `Exact ]
 
 type assoc = (string * string) list
-type 'a route = (tag * string) list * typ * 'a
+type 'a route = (tag * string) list * typ * (assoc -> string option -> 'a)
 
 let path_split path =
   (* NOTE(seliopou): This was implemented manually to minimize dependencies for
@@ -129,7 +129,7 @@ let dispatch_exn routes path =
   | Error msg -> failwith msg
 
 module DSL = struct
-  type 'a route = string * 'a
+  type 'a route = string * (assoc -> string option -> 'a)
 
   let convert routes =
     List.map (fun (m, x) ->

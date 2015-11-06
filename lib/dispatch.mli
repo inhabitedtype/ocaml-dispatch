@@ -54,23 +54,24 @@ type typ = [ `Prefix | `Exact ]
 type assoc = (string * string) list
 (** Type alias for an association list of [string] to [string] *)
 
-type 'a route = (tag * string) list * typ * 'a
+type 'a route = (tag * string) list * typ * (assoc -> string option -> 'a)
 (** The type of a route. The first tuple element specifies the matching rules
     for the path components, with the tag indicating the type of match. The
-    corresponding string depends on the tag provided: for [(`Lit, lit)], the
-    path component must match the string [lit] exactly; for [(`Var, name)], the
-    path component can be anything and will be associated with [name] in the
-    event of a successful match.
+    interpretation of the corresponding string depends on the tag provided: for
+    [(`Lit, lit)], the path component must match the string [lit] exactly; for
+    [(`Var, name)], the path component can be anything and will be associated
+    with [name] in the event of a successful match.
 
     The second component of the tuple indicates the type of match that this
     route support, which can be either a prefix match (indicated by the
     [`Prefix] variant), or an exact match (indicated by the [`Exact] variant).
 
-    The third and final component is the value that will be returned in the
-    event that the route matches the path. *)
+    The third and final component is the handler function. On a successful
+    route match, the matching information will be passed to the handler to
+    produce a value of tyoe ['a] that will be returned. *)
 
-val dispatch     : (assoc -> string option -> 'a) route list -> string -> ('a, string) result
-val dispatch_exn : (assoc -> string option -> 'a) route list -> string -> 'a
+val dispatch     : 'a route list -> string -> ('a, string) result
+val dispatch_exn : 'a route list -> string -> 'a
 (** [dispatch routes path] iterates through [routes] and selects the first one
     that matches [path]. It then applies the route handler to any component
     mappings and trailing path components (in the case of a prefix match) and
@@ -92,7 +93,7 @@ val of_dsl : string -> (tag * string) list * typ
 (** A module that implements the dispatch operations for a DLS represented as
     a string literal. A more familiar interface for the Web world. *)
 module DSL : sig
-  type 'a route = string * 'a
+  type 'a route = string * (assoc -> string option -> 'a)
   (** The type of a route using the DSL to specify the path pattern. For
       example, here are some DSL strings and their translation:
 
@@ -105,6 +106,6 @@ module DSL : sig
   # of_dsk "/user/:id/settings";;
     = ([`Lit, "user"; `Var, "id"; `Lit, "settings"], `Exact) v} *)
 
-  val dispatch     : (assoc -> string option -> 'a) route list -> string -> ('a, string) result
-  val dispatch_exn : (assoc -> string option -> 'a) route list -> string -> 'a
+  val dispatch     : 'a route list -> string -> ('a, string) result
+  val dispatch_exn : 'a route list -> string -> 'a
 end
