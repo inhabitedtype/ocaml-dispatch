@@ -1,8 +1,8 @@
 opam-version: "1.2"
 name: "dispatch"
-version: "0.2.0"
-maintainer: "Spiros Eliopoulos <spiros@inhabitedytpe.com>"
-authors: [ "Spiros Eliopoulos <spiros@inhabitedytpe.com>" ]
+version: "0.3.0"
+maintainer: "Spiros Eliopoulos <spiros@inhabitedtype.com>"
+authors: [ "Spiros Eliopoulos <spiros@inhabitedtype.com>" ]
 license: "BSD-3-clause"
 homepage: "https://github.com/inhabitedtype/ocaml-dispatch"
 dev-repo: "https://github.com/inhabitedtype/ocaml-dispatch.git"

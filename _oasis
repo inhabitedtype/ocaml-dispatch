@@ -1,13 +1,13 @@
 OASISFormat: 0.4
 Name:        dispatch
-Version:     0.2.0
+Version:     0.3.0
 Synopsis:    Path-based dispatching for client- and server-side applications.
 Description: Dispatch provides a basic mechanism for dispatching a request to a
   handler based on hierarchical path names conventionally found in URIs. It can be
   used both for dispatching requests in a server, as well as handing changes to
   hierarchical fragments in a client-side application.
-Authors:     Spiros Eliopoulos <spiros@inhabitedytpe.com>
-Maintainers: Spiros Eliopoulos <spiros@inhabitedytpe.com>
+Authors:     Spiros Eliopoulos <spiros@inhabitedtype.com>
+Maintainers: Spiros Eliopoulos <spiros@inhabitedtype.com>
 Homepage:    https://github.com/inhabitedtype/ocaml-dispatch
 Copyrights:  (C) 2015 Inhabited Type LLC
 License:     BSD-3-clause
