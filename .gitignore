@@ -1,7 +1,4 @@
-.*.sw[pon]
-_build/
-setup.log
-setup.data
-*.native
-*.byte
-*.docdir
+.*.swp
+_build
+.merlin
+*.install

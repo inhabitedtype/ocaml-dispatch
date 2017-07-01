@@ -1,4 +1,4 @@
-# ocaml-dispatch
+# ocaml-dispatch -- patch-based dispatching for client- and server-side applications
 
 ocaml-dispatch provides a basic mechanism for dispatching a request to a
 handler based on hierarchical path names conventionally found in URIs. It can be
