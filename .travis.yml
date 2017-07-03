@@ -1,8 +1,16 @@
 language: c
-install: wget https://raw.githubusercontent.com/ocaml/ocaml-travisci-skeleton/master/.travis-opam.sh
-script: bash -ex .travis-opam.sh
-sudo: required
+sudo: false
+services:
+  - docker
+install: wget https://raw.githubusercontent.com/ocaml/ocaml-travisci-skeleton/master/.travis-docker.sh
+script: bash -ex ./.travis-docker.sh
 env:
-  - OCAML_VERSION=4.02 PACKAGE=dispatch
-  - OCAML_VERSION=4.01 PACKAGE=dispatch
-  - OCAML_VERSION=4.00 PACKAGE=dispatch
+  global:
+    - PINS="dispatch-js:."
+    - PACKAGE="dispatch"
+    - DEPOPTS="dispatch-js"
+    - REVDEPS=true
+  matrix:
+  - OCAML_VERSION=4.03.0 DISTRO="alpine"
+  - OCAML_VERSION=4.04.2 DISTRO="debian-stable"
+  - OCAML_VERSION=4.04.2 DISTRO="ubuntu-16.04"
