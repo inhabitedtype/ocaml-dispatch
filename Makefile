@@ -16,8 +16,9 @@ uninstall:
 clean:
 	rm -rf _build *.install
 
-REPO=../../mirage/opam-repository
+REPO=../opam-repository
 PACKAGES=$(REPO)/packages
+
 # until we have https://github.com/ocaml/opam-publish/issues/38
 pkg-%:
 	topkg opam pkg -n $*
