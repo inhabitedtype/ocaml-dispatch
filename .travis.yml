@@ -6,10 +6,8 @@ install: wget https://raw.githubusercontent.com/ocaml/ocaml-travisci-skeleton/ma
 script: bash -ex ./.travis-docker.sh
 env:
   global:
-    - PINS="dispatch-js:."
+    - PINS="dispatch-js:. dispatch:."
     - PACKAGE="dispatch"
-    - DEPOPTS="dispatch-js"
-    - REVDEPS=true
   matrix:
   - OCAML_VERSION=4.03.0 DISTRO="alpine"
   - OCAML_VERSION=4.04.2 DISTRO="debian-stable"
