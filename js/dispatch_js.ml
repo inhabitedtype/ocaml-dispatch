@@ -1,5 +1,6 @@
 open Lwt
 open Result
+open Js_of_ocaml
 
 let dispatch_on_fragment ?on_failure ?(default="/") routes = 
   let dispatch = Dispatch.dispatch routes in

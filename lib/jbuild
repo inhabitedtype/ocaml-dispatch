@@ -1,5 +1,0 @@
-(library
- ((name        dispatch)
-  (synopsis    "Path-based dispatching for client- and server-side applications")
-  (public_name dispatch)
-  (libraries   (result))))
