@@ -1,8 +1,0 @@
-(executables
- ((names (test_dispatch))
-  (libraries (dispatch oUnit))
-))
-(alias
- ((name    runtest)
-  (deps    (test_dispatch.exe))
-  (action  (run ${<} -verbose))))

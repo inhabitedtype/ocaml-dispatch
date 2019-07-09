@@ -48,7 +48,6 @@ val dispatch_on_fragment :
     [default], or ["/"] if no default is provided. *)
 
 module DSL : sig
-  open DSL 
 
   val dispatch_on_fragment : 
     ?on_failure:(string -> unit Lwt.t) -> ?default:string ->
