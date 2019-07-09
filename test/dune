@@ -1,8 +1,8 @@
 (executables
  (names test_dispatch)
- (libraries dispatch oUnit))
+ (libraries dispatch alcotest))
 
 (alias
  (name runtest)
  (deps test_dispatch.exe)
- (action (run %{deps} -verbose)))
+ (action (run %{deps})))

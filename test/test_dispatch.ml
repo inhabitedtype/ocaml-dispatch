@@ -31,6 +31,9 @@
     POSSIBILITY OF SUCH DAMAGE.
   ----------------------------------------------------------------------------*)
 
+
+open Result
+
 let base_path c _ _ = c
 let params vs _ = vs
 let param_path k ps _ = List.assoc k ps
@@ -39,146 +42,121 @@ let disp_path _ r =
   | None   -> ""
   | Some r -> r
 
+open Alcotest
 
-open OUnit
+let result (type a) (type b) ok error =
+  let (module Ok : TESTABLE with type t = a) = ok
+  and (module Error : TESTABLE with type t = b) = error in
+  let module M = struct
+    type t = (Ok.t, Error.t) result
+    let pp fmt = function
+      | Ok x    -> Format.fprintf fmt "Ok @[(%a)@]" Ok.pp x
+      | Error x -> Format.fprintf fmt "Ok @[(%a)@]" Error.pp x
+    let equal x y =
+      match x, y with
+      | Ok x   , Ok y    -> Ok.equal x y
+      | Error x, Error y -> Error.equal x y
+      | _      , _       -> false
+  end in
+  (module M  : TESTABLE with type t  = M.t)
+
+let always (type a) a =
+  let (module T : TESTABLE with type t = a) = a in
+  let module M = struct
+    include T
+    let equal _ _ = true
+  end in
+  (module M : TESTABLE with type t = a)
+  
+let never (type a) a =
+  let (module T : TESTABLE with type t = a) = a in
+  let module M = struct
+    include T
+    let equal _ _ = false
+  end in
+  (module M : TESTABLE with type t = a)
+
+let unit = of_pp (fun fmt () -> Format.pp_print_string fmt "()")
+let assoc = list (pair string string)
+let error = always string
+
 open Dispatch.DSL
-open Result
 
-let empty () =
-  "an empty table will produce no result"
-    @? begin match dispatch [] "/" with
-       | Error _ -> true
-       | _       -> false
+let literals = 
+  "literals", [
+    "base cases", `Quick, begin fun () ->
+      let t0, t1 = ["/", fun _ _ -> ()], ["", fun _ _ -> ()] in
+      let check = Alcotest.check (result unit error) in
+      let test_ok  ~msg tbl p = check msg (dispatch tbl p) (Ok ()) in
+      let test_err ~msg tbl p = check msg (dispatch tbl p) (Error "_") in
+      test_err [] "/"     ~msg:"empty table produces errors";
+      test_ok  t0 "/"     ~msg:"empty path string maps to root";
+      test_ok  t1 ""      ~msg:"empty route path matches root";
+      test_err t0 "/foo"  ~msg:"root entry won't dispatch others";
     end;
-  "an empty path string will get mapped to root"
-    @? begin match dispatch ["/", fun _ _ -> ()] "" with
-       | Ok () -> true
-       | _     -> false
-    end;
-  "an empty route path will match root"
-    @? begin match dispatch ["", fun _ _ -> ()] "/" with
-       | Ok () -> true
-       | _     -> false
-    end;
-;;
-
-let single () =
-  let table = ["/", (fun ps p -> ((), ps, p))] in
-  "a single entry for the root will dispatch the root to it"
-    @? begin match dispatch table "/" with
-       | Ok((), [], None) -> true
-       | _                -> false
-    end;
-  "a single entry for the root will not dispatch anything else to it"
-    @? begin match dispatch table "/foo" with
-       | Error _ -> true
-       | _       -> false
+    "overlaping paths", `Quick, begin fun () ->
+      let t0 =
+        [ ("/foo"    , base_path "/foo")
+        ; ("/foo/bar", base_path "/foo/bar")
+        ; ("/foo/baz", base_path "/foo/baz")
+        ; ("/bar/baz", base_path "/bar/baz")
+        ; ("/bar/foo", base_path "/bar/foo")
+        ; ("/bar"    , base_path "/bar")
+        ]
+      in
+      let check = Alcotest.check (result string error) in
+      let test_ok ~msg p = check msg (dispatch t0 p) (Ok p) in
+      test_ok "/foo"      ~msg:"leading pattern gets matched";
+      test_ok "/bar"      ~msg:"trailing pattern gets matched";
+      test_ok "/foo/baz"  ~msg:"prefix match does not shadow";
     end
+  ]
 
-let overlap () =
-  let table =
-    [ ("/foo"    , base_path "/foo")
-    ; ("/foo/bar", base_path "/foo/bar")
-    ; ("/foo/baz", base_path "/foo/baz")
-    ; ("/bar/baz", base_path "/bar/baz")
-    ; ("/bar/foo", base_path "/bar/foo")
-    ; ("/bar"    , base_path "/bar")
-    ]
-  in
-  let open Dispatch.DSL in
-  "a leading prefix pattern gets matched"
-    @? begin match dispatch table "/foo" with
-       | Ok "/foo" -> true
-       | _         -> false
+let params =
+  "params", [
+    "base cases", `Quick, begin fun () ->
+      let t0 =
+        [ ("/foo/:id"         , param_path "id")
+        ; ("/foo/:id/:bar"    , param_path "bar")
+        ; ("/foo/:id/bar/:baz", param_path "baz")
+        ]
+      in
+      let check = Alcotest.check (result string error) in
+      let test_ok ~msg p v = check msg (dispatch t0 p) (Ok v) in
+      test_ok "/foo/1"          "1"   ~msg:"leading pattern matches";
+      test_ok "/foo/1/test"    "test" ~msg:"prefix match does not shadow";
+      test_ok "/foo/1/bar/one" "one"  ~msg:"interleaved keys and liters";
     end;
-  "a trailing prefix pattern gets matched"
-    @? begin match dispatch table "/bar" with
-       | Ok "/bar" -> true
-       | _         -> false
-    end;
-  "a complete pattern does not get shadowed by prefix"
-    @? begin match dispatch table "/foo/baz" with
-       | Ok "/foo/baz" -> true
-       | _             -> false
-    end;
-;;
-
-let keys () =
-  let table =
-    [ ("/foo/:id"         , param_path "id")
-    ; ("/foo/:id/:bar"    , param_path "bar")
-    ; ("/foo/:id/bar/:baz", param_path "baz")
-    ]
-  in
-  "a leading prefix pattern gets matched and keys properly assigned"
-    @? begin match dispatch table "/foo/1" with
-       | Ok "1" -> true
-       | _      -> false
-    end;
-  "a pattern with keys does not get shadowed by prefix"
-    @? begin match dispatch table "/foo/1/test" with
-       | Ok "test" -> true
-       | _         -> false
-    end;
-  "a pattern with interleaved keys and literals works"
-    @? begin match dispatch table "/foo/1/bar/one" with
-       | Ok "one" -> true
-       | _        -> false
-    end;
-;;
-
-let var_order () =
-  let table =
-    [ ("/test/:z/:x/:y/", params)
-    ; ("/test/:x/:y/order/:z/", params) ]
-  in
-  "return path parameters in the order they appear"
-    @? begin match dispatch table "/test/foo/bar/order/baz" with
-      | Ok ["x", "foo"; "y", "bar"; "z", "baz" ] -> true
-      | _                                        -> false
+    "variable ordering", `Quick, begin fun () ->
+      let t0 =
+        [ ("/test/:z/:x/:y/"      , params)
+        ; ("/test/:x/:y/order/:z/", params)
+        ]
+      in
+      let check = Alcotest.check (result assoc error) in
+      let test_ok ~msg p v = check msg (dispatch t0 p) (Ok v) in
+      test_ok ~msg:"slashes not included in param"
+        "/test/foo/bar/order/baz" ["x", "foo"; "y", "bar"; "z", "baz"];
+      test_ok ~msg:"leading pattern matches"
+        "/test/foo/bar/order"     ["z", "foo"; "x", "bar"; "y", "order"];
     end
+  ]
 ;;
 
-let wildcard () =
-  let table = ["/foo/*", disp_path] in
-  "a trailing wildcard pattern matches just the prefix"
-    @? begin match dispatch table "/foo" with
-       | Ok "" -> true
-       | _     -> false
-    end;
-  "a trailing wildcard pattern matches a longer path"
-    @? begin match dispatch table "/foo/bar/baz" with
-       | Ok "bar/baz" -> true
-       | _            -> false
-    end;
+let wildcards =
+  "wildcard", [
+    let t0 = ["/foo/*", disp_path] in
+    let check = Alcotest.check (result string error) in
+    let test_ok ~msg p v = check msg (dispatch t0 p) (Ok v) in
+    "base cases", `Quick, begin fun () ->
+      test_ok ~msg: "a trailing wildcard pattern matches just the prefix"
+        "/foo" "";
+      test_ok ~msg:"a trailing wildcard pattern matches a longer path"
+        "/foo/bar/baz" "bar/baz";
+    end
+  ]
 ;;
 
-let rec was_successful =
-  function
-    | [] -> true
-    | RSuccess _::t
-    | RSkip _::t ->
-        was_successful t
-    | RFailure _::_
-    | RError _::_
-    | RTodo _::_ ->
-        false
-
-let _ =
-  let tests = [
-    "empty" >:: empty;
-    "single" >:: single;
-    "overlap" >:: overlap;
-    "keys" >:: keys;
-    "var order" >:: var_order;
-    "wildcard" >:: wildcard;
-  ] in
-  let suite = (Printf.sprintf "test dispatch") >::: tests in
-  let verbose = ref false in
-  let set_verbose _ = verbose := true in
-  Arg.parse
-    [("-verbose", Arg.Unit set_verbose, "Run the test in verbose mode.");]
-    (fun x -> raise (Arg.Bad ("Bad argument : " ^ x)))
-    ("Usage: " ^ Sys.argv.(0) ^ " [-verbose]");
-  if not (was_successful (run_test_tt ~verbose:!verbose suite))
-  then exit 1
+let () =
+  Alcotest.run "Dispatch.DSL tests"
+    [ literals; params; wildcards ]
