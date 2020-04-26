@@ -38,11 +38,16 @@
     used both for dispatching requests in a server, as well as handing changes
     to heirarchical fragments in a client-side application. *)
 
-type tag = [ `Lit | `Var ]
-(** The type tag for a path component. [`Lit] indiciates that the component
-   should match exactly, while [`Var] indicates that the component can be
-   anything and should be associated with the variable name provided in the
-   tuple. *)
+(** A segment of a path.
+
+    A path is a sequence of segments separated by a '/' character. A segment
+    can either be a literal string or any string that will be associated with
+    the provided variable name. *)
+module Segment : sig
+  type t =
+    | Lit of string
+    | Var of string
+end
 
 type typ = [ `Prefix | `Exact ]
 (** The type of match for the route. [`Prefix] indicates that the route does
@@ -52,7 +57,7 @@ type typ = [ `Prefix | `Exact ]
 type assoc = (string * string) list
 (** Type alias for an association list of [string] to [string] *)
 
-type 'a route = (tag * string) list * typ * (assoc -> string option -> 'a)
+type 'a route = Segment.t list * typ * (assoc -> string option -> 'a)
 (** The type of a route. The first tuple element specifies the matching rules
     for the path components, with the tag indicating the type of match. The
     interpretation of the corresponding string depends on the tag provided: for
@@ -83,8 +88,8 @@ val dispatch_exn : 'a t -> string -> 'a
     [dispatch_exn routes path] behaves just like [dispatch routes path] except
     will raise an exception using [failwith] in the case of no matches. *)
 
-val to_dsl : (tag * string) list * typ -> string
-val of_dsl : string -> (tag * string) list * typ
+val to_dsl : Segment.t list * typ -> string
+val of_dsl : string -> Segment.t list * typ
 (** [to_dsl route_spec] is a string in the routing DSL that will beahve in the
     exact same way as [route_spec].
 

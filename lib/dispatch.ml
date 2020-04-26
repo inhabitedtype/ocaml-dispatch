@@ -31,14 +31,18 @@
     POSSIBILITY OF SUCH DAMAGE.
   ----------------------------------------------------------------------------*)
 
-type tag =
-  [ `Lit | `Var ]
+
+module Segment = struct
+  type t =
+    | Lit of string
+    | Var of string
+end
 
 type typ =
   [ `Prefix | `Exact ]
 
 type assoc = (string * string) list
-type 'a route = (tag * string) list * typ * (assoc -> string option -> 'a)
+type 'a route = Segment.t list * typ * (assoc -> string option -> 'a)
 
 type 'a t = 'a route list
 
@@ -71,8 +75,8 @@ let path_split path =
 let to_dsl (ms, typ) =
   let start =
     String.concat "/" (List.map (function
-      | (`Lit, x) -> x
-      | (`Var, x) -> ":" ^ x)
+      | Segment.Lit x -> x
+      | Var x -> ":" ^ x)
     ms)
   in
   match typ with
@@ -86,27 +90,26 @@ let of_dsl str =
     | ps'      -> `Exact , ps'
   in
   let parts =
-    List.fold_left (fun acc p ->
+    List.rev_map (fun p ->
       let len = String.length p in
-      if len > 0 && String.get p 0 = ':' then
-        (`Var, String.sub p 1 (len - 1))::acc
-      else
-        (`Lit, p)::acc)
-    [] rev_parts
+      if len > 0 && String.get p 0 = ':'
+      then Segment.Var (String.sub p 1 (len - 1))
+      else Lit p)
+    rev_parts
   in
   parts, star
 
 let path_match ps0 ms0 =
   let rec loop ps ms acc =
-    match ps, ms with
+    match ps, (ms : Segment.t list) with
     | []    , []  -> `Exact (List.rev acc)
     | _     , []  -> `Partial (List.rev acc, ps)
     | []    , _   -> `Failure (Printf.sprintf
       "unmatched pattern suffix: %s" (to_dsl (ms, `Exact)))
-    | p::ps', (`Lit, l)::ms' ->
+    | p::ps', (Lit l)::ms' ->
       if p = l then loop ps' ms' acc else `Failure (Printf.sprintf
         "pattern mismatch: expected '%s' but got '%s'" l p)
-    | p::ps', (`Var, m)::ms' ->
+    | p::ps', (Var m)::ms' ->
       loop ps' ms' ((m, p) :: acc)
   in
   loop ps0 ms0 []
