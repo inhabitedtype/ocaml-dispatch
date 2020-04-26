@@ -63,8 +63,8 @@ let handler request =
     ; "/hello/:who/", hello_handler
   ] in
   match DSL.dispatch table request.path with
-  | Result.Ok handler -> handler request
-  | Result.Error _    -> "Not found!"
+  | Some handler -> handler request
+  | None         -> "Not found!"
 ;;
 
 let _ =
