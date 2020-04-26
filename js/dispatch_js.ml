@@ -1,19 +1,18 @@
 open Lwt
-open Result
 open Js_of_ocaml
 module Lwt_js_events = Js_of_ocaml_lwt.Lwt_js_events
 
-let dispatch_on_fragment ?on_failure ?(default="/") routes = 
-  let dispatch = Dispatch.dispatch routes in
-  let on_failure =
-    match on_failure with
-    | None   -> (fun msg -> print_endline msg; return_unit)
-    | Some f -> f
-  in
+let default_on_failure msg =
+  print_endline msg;
+  return_unit
+;;
+
+let dispatch_on_fragment ?(on_failure=default_on_failure) ?(default="/") routes =
+  let dispatch_exn = Dispatch.dispatch_exn routes in
   let go frag =
-    match dispatch frag with
-    | Error msg -> on_failure msg
-    | Ok    res -> res
+    match dispatch_exn frag with
+    | exception (Failure msg) -> on_failure msg
+    | handler                 -> handler
   in
   let frag_loop =
     Lwt_js_events.onhashchanges (fun e _ ->
@@ -27,11 +26,11 @@ let dispatch_on_fragment ?on_failure ?(default="/") routes =
     in
     go frag)
   in
-  let current = Url.Current.get_fragment () in
-  if current = "" then begin 
+  match Url.Current.get_fragment () with
+  | "" ->
     Url.Current.set_fragment default;
     frag_loop
-  end else 
+  | current ->
     go current >>= fun _ -> frag_loop
 
 module DSL = struct

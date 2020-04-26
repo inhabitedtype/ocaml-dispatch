@@ -32,8 +32,6 @@
   ----------------------------------------------------------------------------*)
 
 
-open Result
-
 let base_path c _ _ = c
 let params vs _ = vs
 let param_path k ps _ = List.assoc k ps
@@ -52,9 +50,9 @@ let literals =
   "literals", [
     "base cases", `Quick, begin fun () ->
       let t0, t1 = ["/", fun _ _ -> ()], ["", fun _ _ -> ()] in
-      let check = Alcotest.check (result unit pass) in
-      let test_ok  ~msg tbl p = check msg (dispatch tbl p) (Ok ()) in
-      let test_err ~msg tbl p = check msg (dispatch tbl p) (Error "_") in
+      let check = Alcotest.check (option unit) in
+      let test_ok  ~msg tbl p = check msg (dispatch tbl p) (Some ()) in
+      let test_err ~msg tbl p = check msg (dispatch tbl p) None in
       test_err [] "/"     ~msg:"empty table produces errors";
       test_ok  t0 "/"     ~msg:"empty path string maps to root";
       test_ok  t1 ""      ~msg:"empty route path matches root";
@@ -70,8 +68,8 @@ let literals =
         ; ("/bar"    , base_path "/bar")
         ]
       in
-      let check = Alcotest.check (result string pass) in
-      let test_ok ~msg p = check msg (dispatch t0 p) (Ok p) in
+      let check = Alcotest.check (option string) in
+      let test_ok ~msg p = check msg (dispatch t0 p) (Some p) in
       test_ok "/foo"      ~msg:"leading pattern gets matched";
       test_ok "/bar"      ~msg:"trailing pattern gets matched";
       test_ok "/foo/baz"  ~msg:"prefix match does not shadow";
@@ -87,8 +85,8 @@ let params =
         ; ("/foo/:id/bar/:baz", param_path "baz")
         ]
       in
-      let check = Alcotest.check (result string pass) in
-      let test_ok ~msg p v = check msg (dispatch t0 p) (Ok v) in
+      let check = Alcotest.check (option string) in
+      let test_ok ~msg p v = check msg (dispatch t0 p) (Some v) in
       test_ok "/foo/1"          "1"   ~msg:"leading pattern matches";
       test_ok "/foo/1/test"    "test" ~msg:"prefix match does not shadow";
       test_ok "/foo/1/bar/one" "one"  ~msg:"interleaved keys and liters";
@@ -99,8 +97,8 @@ let params =
         ; ("/test/:x/:y/order/:z/", params)
         ]
       in
-      let check = Alcotest.check (result assoc pass) in
-      let test_ok ~msg p v = check msg (dispatch t0 p) (Ok v) in
+      let check = Alcotest.check (option assoc) in
+      let test_ok ~msg p v = check msg (dispatch t0 p) (Some v) in
       test_ok ~msg:"slashes not included in param"
         "/test/foo/bar/order/baz" ["x", "foo"; "y", "bar"; "z", "baz"];
       test_ok ~msg:"leading pattern matches"
@@ -112,8 +110,8 @@ let params =
 let wildcards =
   "wildcard", [
     let t0 = ["/foo/*", disp_path] in
-    let check = Alcotest.check (result string pass) in
-    let test_ok ~msg p v = check msg (dispatch t0 p) (Ok v) in
+    let check = Alcotest.check (option string) in
+    let test_ok ~msg p v = check msg (dispatch t0 p) (Some v) in
     "base cases", `Quick, begin fun () ->
       test_ok ~msg: "a trailing wildcard pattern matches just the prefix"
         "/foo" "";
