@@ -9,7 +9,6 @@ depends: [
   "ocaml" {>="4.03.0"}
   "alcotest" {with-test & > "0.5.0"}
   "dune" {build & >= "1.0"}
-  "result"
 ]
 build: [
   ["dune" "subst"] {pinned}

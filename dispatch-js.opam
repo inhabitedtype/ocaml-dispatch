@@ -9,7 +9,6 @@ depends: [
   "dune" {build & >= "1.0"}
   "dispatch" {>="0.4.0"}
   "js_of_ocaml-lwt" {>= "3.5.0"}
-  "result"
 ]
 build: [
   ["dune" "subst"] {pinned}

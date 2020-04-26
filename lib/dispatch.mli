@@ -38,8 +38,6 @@
     used both for dispatching requests in a server, as well as handing changes
     to heirarchical fragments in a client-side application. *)
 
-open Result
-
 type tag = [ `Lit | `Var ]
 (** The type tag for a path component. [`Lit] indiciates that the component
    should match exactly, while [`Var] indicates that the component can be
@@ -70,13 +68,13 @@ type 'a route = (tag * string) list * typ * (assoc -> string option -> 'a)
     route match, the matching information will be passed to the handler to
     produce a value of tyoe ['a] that will be returned. *)
 
-val dispatch     : 'a route list -> string -> ('a, string) result
+val dispatch     : 'a route list -> string -> 'a option
 val dispatch_exn : 'a route list -> string -> 'a
 (** [dispatch routes path] iterates through [routes] and selects the first one
     that matches [path]. It then applies the route handler to any component
     mappings and trailing path components (in the case of a prefix match) and
     returns the result. If none of the [routes] matches [path], it will return
-    an [Error] result.
+    [None].
 
     [dispatch_exn routes path] behaves just like [dispatch routes path] except
     will raise an exception using [failwith] in the case of no matches. *)
@@ -106,6 +104,6 @@ module DSL : sig
   # of_dsk "/user/:id/settings";;
     = ([`Lit, "user"; `Var, "id"; `Lit, "settings"], `Exact) v} *)
 
-  val dispatch     : 'a route list -> string -> ('a, string) result
+  val dispatch     : 'a route list -> string -> 'a option
   val dispatch_exn : 'a route list -> string -> 'a
 end

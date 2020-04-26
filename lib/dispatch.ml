@@ -31,8 +31,6 @@
     POSSIBILITY OF SUCH DAMAGE.
   ----------------------------------------------------------------------------*)
 
-open Result
-
 type tag =
   [ `Lit | `Var ]
 
@@ -112,11 +110,11 @@ let path_match ps0 ms0 =
 let dispatch routes path =
   let ps0 = path_split path in
   let rec loop = function
-    | []          -> Error "no matching routes found"
+    | []          -> None
     | (ms, exact, f)::xs ->
       begin match exact, path_match ps0 ms with
-      | #typ   , `Exact assoc        -> Ok(f assoc None)
-      | `Prefix, `Partial(assoc, ps) -> Ok(f assoc (Some (String.concat "/" ps)))
+      | #typ   , `Exact assoc        -> Some(f assoc None)
+      | `Prefix, `Partial(assoc, ps) -> Some(f assoc (Some (String.concat "/" ps)))
       | `Exact , `Partial _          -> loop xs
       | _      , `Failure _          -> loop xs
       end
@@ -125,8 +123,8 @@ let dispatch routes path =
 
 let dispatch_exn routes path =
   match dispatch routes path with
-  | Ok x      -> x
-  | Error msg -> failwith msg
+  | Some x -> x
+  | None   -> failwith (Printf.sprintf "no matching route found: %s" path)
 
 module DSL = struct
   type 'a route = string * (assoc -> string option -> 'a)
