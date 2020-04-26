@@ -1,6 +1,7 @@
 open Lwt
 open Result
 open Js_of_ocaml
+module Lwt_js_events = Js_of_ocaml_lwt.Lwt_js_events
 
 let dispatch_on_fragment ?on_failure ?(default="/") routes = 
   let dispatch = Dispatch.dispatch routes in
