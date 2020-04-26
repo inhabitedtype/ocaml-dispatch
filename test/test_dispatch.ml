@@ -44,41 +44,7 @@ let disp_path _ r =
 
 open Alcotest
 
-let result (type a) (type b) ok error =
-  let (module Ok : TESTABLE with type t = a) = ok
-  and (module Error : TESTABLE with type t = b) = error in
-  let module M = struct
-    type t = (Ok.t, Error.t) result
-    let pp fmt = function
-      | Ok x    -> Format.fprintf fmt "Ok @[(%a)@]" Ok.pp x
-      | Error x -> Format.fprintf fmt "Ok @[(%a)@]" Error.pp x
-    let equal x y =
-      match x, y with
-      | Ok x   , Ok y    -> Ok.equal x y
-      | Error x, Error y -> Error.equal x y
-      | _      , _       -> false
-  end in
-  (module M  : TESTABLE with type t  = M.t)
-
-let always (type a) a =
-  let (module T : TESTABLE with type t = a) = a in
-  let module M = struct
-    include T
-    let equal _ _ = true
-  end in
-  (module M : TESTABLE with type t = a)
-  
-let never (type a) a =
-  let (module T : TESTABLE with type t = a) = a in
-  let module M = struct
-    include T
-    let equal _ _ = false
-  end in
-  (module M : TESTABLE with type t = a)
-
-let unit = of_pp (fun fmt () -> Format.pp_print_string fmt "()")
 let assoc = list (pair string string)
-let error = always string
 
 open Dispatch.DSL
 
@@ -86,7 +52,7 @@ let literals =
   "literals", [
     "base cases", `Quick, begin fun () ->
       let t0, t1 = ["/", fun _ _ -> ()], ["", fun _ _ -> ()] in
-      let check = Alcotest.check (result unit error) in
+      let check = Alcotest.check (result unit pass) in
       let test_ok  ~msg tbl p = check msg (dispatch tbl p) (Ok ()) in
       let test_err ~msg tbl p = check msg (dispatch tbl p) (Error "_") in
       test_err [] "/"     ~msg:"empty table produces errors";
@@ -104,7 +70,7 @@ let literals =
         ; ("/bar"    , base_path "/bar")
         ]
       in
-      let check = Alcotest.check (result string error) in
+      let check = Alcotest.check (result string pass) in
       let test_ok ~msg p = check msg (dispatch t0 p) (Ok p) in
       test_ok "/foo"      ~msg:"leading pattern gets matched";
       test_ok "/bar"      ~msg:"trailing pattern gets matched";
@@ -121,7 +87,7 @@ let params =
         ; ("/foo/:id/bar/:baz", param_path "baz")
         ]
       in
-      let check = Alcotest.check (result string error) in
+      let check = Alcotest.check (result string pass) in
       let test_ok ~msg p v = check msg (dispatch t0 p) (Ok v) in
       test_ok "/foo/1"          "1"   ~msg:"leading pattern matches";
       test_ok "/foo/1/test"    "test" ~msg:"prefix match does not shadow";
@@ -133,7 +99,7 @@ let params =
         ; ("/test/:x/:y/order/:z/", params)
         ]
       in
-      let check = Alcotest.check (result assoc error) in
+      let check = Alcotest.check (result assoc pass) in
       let test_ok ~msg p v = check msg (dispatch t0 p) (Ok v) in
       test_ok ~msg:"slashes not included in param"
         "/test/foo/bar/order/baz" ["x", "foo"; "y", "bar"; "z", "baz"];
@@ -146,7 +112,7 @@ let params =
 let wildcards =
   "wildcard", [
     let t0 = ["/foo/*", disp_path] in
-    let check = Alcotest.check (result string error) in
+    let check = Alcotest.check (result string pass) in
     let test_ok ~msg p v = check msg (dispatch t0 p) (Ok v) in
     "base cases", `Quick, begin fun () ->
       test_ok ~msg: "a trailing wildcard pattern matches just the prefix"
