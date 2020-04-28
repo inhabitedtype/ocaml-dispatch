@@ -40,6 +40,10 @@ type typ =
 type assoc = (string * string) list
 type 'a route = (tag * string) list * typ * (assoc -> string option -> 'a)
 
+type 'a t = 'a route list
+
+let create t = t
+
 let path_split path =
   (* NOTE(seliopou): This was implemented manually to minimize dependencies for
    * js_of_ocaml. Ain't nobody got time for another regular expression library
@@ -129,15 +133,9 @@ let dispatch_exn routes path =
 module DSL = struct
   type 'a route = string * (assoc -> string option -> 'a)
 
-  let convert routes =
+  let create routes =
     List.map (fun (m, x) ->
       let ts, t = of_dsl m in
       ts, t, x)
     routes
-
-  let dispatch routes =
-    dispatch (convert routes)
-
-  let dispatch_exn routes =
-    dispatch_exn (convert routes)
 end
