@@ -32,14 +32,3 @@ let dispatch_on_fragment ?(on_failure=default_on_failure) ?(default="/") routes 
     frag_loop
   | current ->
     go current >>= fun _ -> frag_loop
-
-module DSL = struct
-  let convert routes =
-    List.map (fun (m, x) ->
-      let ts, t = Dispatch.of_dsl m in
-      ts, t, x)
-    routes
-
-  let dispatch_on_fragment ?on_failure ?default routes =
-    dispatch_on_fragment ?on_failure ?default (convert routes)
-end

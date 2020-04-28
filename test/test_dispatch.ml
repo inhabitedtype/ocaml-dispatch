@@ -44,29 +44,31 @@ open Alcotest
 
 let assoc = list (pair string string)
 
-open Dispatch.DSL
+open Dispatch
 
 let literals = 
   "literals", [
     "base cases", `Quick, begin fun () ->
-      let t0, t1 = ["/", fun _ _ -> ()], ["", fun _ _ -> ()] in
+      let t0, t1 = DSL.create ["/", fun _ _ -> ()], DSL.create ["", fun _ _ -> ()] in
+      let empty = DSL.create [] in
       let check = Alcotest.check (option unit) in
       let test_ok  ~msg tbl p = check msg (dispatch tbl p) (Some ()) in
       let test_err ~msg tbl p = check msg (dispatch tbl p) None in
-      test_err [] "/"     ~msg:"empty table produces errors";
-      test_ok  t0 "/"     ~msg:"empty path string maps to root";
-      test_ok  t1 ""      ~msg:"empty route path matches root";
-      test_err t0 "/foo"  ~msg:"root entry won't dispatch others";
+      test_err empty "/"     ~msg:"empty table produces errors";
+      test_ok  t0    "/"     ~msg:"empty path string maps to root";
+      test_ok  t1    ""      ~msg:"empty route path matches root";
+      test_err t0    "/foo"  ~msg:"root entry won't dispatch others";
     end;
     "overlaping paths", `Quick, begin fun () ->
       let t0 =
-        [ ("/foo"    , base_path "/foo")
-        ; ("/foo/bar", base_path "/foo/bar")
-        ; ("/foo/baz", base_path "/foo/baz")
-        ; ("/bar/baz", base_path "/bar/baz")
-        ; ("/bar/foo", base_path "/bar/foo")
-        ; ("/bar"    , base_path "/bar")
-        ]
+        DSL.create
+          [ ("/foo"    , base_path "/foo")
+          ; ("/foo/bar", base_path "/foo/bar")
+          ; ("/foo/baz", base_path "/foo/baz")
+          ; ("/bar/baz", base_path "/bar/baz")
+          ; ("/bar/foo", base_path "/bar/foo")
+          ; ("/bar"    , base_path "/bar")
+          ]
       in
       let check = Alcotest.check (option string) in
       let test_ok ~msg p = check msg (dispatch t0 p) (Some p) in
@@ -80,10 +82,11 @@ let params =
   "params", [
     "base cases", `Quick, begin fun () ->
       let t0 =
-        [ ("/foo/:id"         , param_path "id")
-        ; ("/foo/:id/:bar"    , param_path "bar")
-        ; ("/foo/:id/bar/:baz", param_path "baz")
-        ]
+        DSL.create
+          [ ("/foo/:id"         , param_path "id")
+          ; ("/foo/:id/:bar"    , param_path "bar")
+          ; ("/foo/:id/bar/:baz", param_path "baz")
+          ]
       in
       let check = Alcotest.check (option string) in
       let test_ok ~msg p v = check msg (dispatch t0 p) (Some v) in
@@ -93,9 +96,10 @@ let params =
     end;
     "variable ordering", `Quick, begin fun () ->
       let t0 =
-        [ ("/test/:z/:x/:y/"      , params)
-        ; ("/test/:x/:y/order/:z/", params)
-        ]
+        DSL.create
+          [ ("/test/:z/:x/:y/"      , params)
+          ; ("/test/:x/:y/order/:z/", params)
+          ]
       in
       let check = Alcotest.check (option assoc) in
       let test_ok ~msg p v = check msg (dispatch t0 p) (Some v) in
@@ -109,7 +113,7 @@ let params =
 
 let wildcards =
   "wildcard", [
-    let t0 = ["/foo/*", disp_path] in
+    let t0 = DSL.create ["/foo/*", disp_path] in
     let check = Alcotest.check (option string) in
     let test_ok ~msg p v = check msg (dispatch t0 p) (Some v) in
     "base cases", `Quick, begin fun () ->

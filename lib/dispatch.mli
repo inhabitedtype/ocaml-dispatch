@@ -68,8 +68,12 @@ type 'a route = (tag * string) list * typ * (assoc -> string option -> 'a)
     route match, the matching information will be passed to the handler to
     produce a value of tyoe ['a] that will be returned. *)
 
-val dispatch     : 'a route list -> string -> 'a option
-val dispatch_exn : 'a route list -> string -> 'a
+type 'a t
+
+val create : 'a route list -> 'a t
+
+val dispatch     : 'a t -> string -> 'a option
+val dispatch_exn : 'a t -> string -> 'a
 (** [dispatch routes path] iterates through [routes] and selects the first one
     that matches [path]. It then applies the route handler to any component
     mappings and trailing path components (in the case of a prefix match) and
@@ -104,6 +108,5 @@ module DSL : sig
   # of_dsk "/user/:id/settings";;
     = ([`Lit, "user"; `Var, "id"; `Lit, "settings"], `Exact) v} *)
 
-  val dispatch     : 'a route list -> string -> 'a option
-  val dispatch_exn : 'a route list -> string -> 'a
+  val create : 'a route list -> 'a t
 end
