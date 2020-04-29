@@ -58,11 +58,13 @@ let hello_handler keys rest request =
 ;;
 
 let handler request =
-  let table = [
-      "/"           , hello_handler
-    ; "/hello/:who/", hello_handler
-  ] in
-  match DSL.dispatch table request.path with
+  let routes = 
+    DSL.create 
+      [ "/"           , hello_handler
+      ; "/hello/:who/", hello_handler
+      ] 
+  in
+  match DSL.dispatch routes request.path with
   | Some handler -> handler request
   | None         -> "Not found!"
 ;;
