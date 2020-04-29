@@ -34,10 +34,10 @@ opam upgrade dispatch
 ```
 
 For building and running the tests during development, you will need to install
-the `oUnit` package and reconfigure the build process to enable tests:
+the `alcotest` package and reconfigure the build process to enable tests:
 
 ```bash
-opam install oUnit
+opam install alcotest
 dune runtest
 ```
 
