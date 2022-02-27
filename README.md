@@ -64,7 +64,7 @@ let handler request =
       ; "/hello/:who/", hello_handler
       ] 
   in
-  match DSL.dispatch routes request.path with
+  match dispatch routes request.path with
   | Some handler -> handler request
   | None         -> "Not found!"
 ;;
