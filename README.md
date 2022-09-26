@@ -5,7 +5,7 @@ handler based on hierarchical path names conventionally found in URIs. It can be
 used both for dispatching requests in a server, as well as handing changes to
 hierarchical fragments in a client-side application.
 
-[![Build Status](https://travis-ci.org/inhabitedtype/ocaml-dispatch.svg?branch=master)](https://travis-ci.org/inhabitedtype/ocaml-dispatch)
+[![OCaml-CI Build Status](https://img.shields.io/endpoint?url=https://ci.ocamllabs.io/badge/inhabitedtype/ocaml-dispatch/master)](https://ci.ocamllabs.io/github/inhabitedtype/ocaml-dispatch)
 
 ## Installation
 
