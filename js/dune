@@ -3,4 +3,4 @@
  (public_name dispatch-js)
  (preprocess
   (pps js_of_ocaml-ppx))
- (libraries dispatch js_of_ocaml-lwt result))
+ (libraries dispatch js_of_ocaml-lwt))

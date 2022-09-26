@@ -5,7 +5,7 @@ license: "BSD-3-clause"
 homepage: "https://github.com/inhabitedtype/ocaml-dispatch"
 bug-reports: "https://github.com/inhabitedtype/ocaml-dispatch/issues"
 depends: [
-  "ocaml" {>= "4.03.0"}
+  "ocaml" {>= "4.08"}
   "dune" {>= "3.0"}
   "dispatch" {>="0.4.0"}
   "js_of_ocaml-lwt" {>= "3.5.0"}
